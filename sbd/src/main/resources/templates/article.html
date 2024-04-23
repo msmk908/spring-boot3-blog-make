@@ -22,7 +22,7 @@
                         <!-- 템플릿 함수 중 ${#temporals.format()}은 날씨 형식을 yyyy-MM-dd HH:mm으로 포매팅합니다. -->
                         <!-- 포매팅한 날짜 형식을 || 기호와 함께 Posted on 이라는 텍스트와 붙인 점도 봐주세요. -->
                         <div class="text-muted fst-italic mb-2" th:text="|Posted on
-                                    ${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}|"></div>
+                                    ${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')} By ${article.author}|"></div>
                     </header>
                     <section class="mb-5">
                         <p class="fs-5 mb-4" th:text="${article.content}"></p>
