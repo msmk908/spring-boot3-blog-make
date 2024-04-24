@@ -11,18 +11,22 @@
     <h4 class="mb-3">블로그에 오신 것을 환영합니다.</h4>
   </div>
 
+
   <div class="container mt-5">
     <div class="row">
       <div class="col-lg-8">
         <article>
           <!-- 아이디 정보 저장 -->
           <input type="hidden" id="article-id" th:value="${article.id}">
+          <input type="hidden" id="article-content" th:value="${article.content}">
 
           <header class="mb-4">
             <input type="text" class="form-control" placeholder="제목" id="title" th:value="${article.title}">
           </header>
           <section class="mb-5">
-            <textarea class="form-control h-25" rows="10" placeholder="내용" id="content" th:text="${article.content}"></textarea>
+            <div id="tui">
+
+            </div>
           </section>
           <!-- id가 있을 때는 [수정] 버튼을, 없을 때는 [등록] 버튼이 보이게 함 -->
           <button th:if="${article.id} != null" type="button" id="modify-btn" class="btn btn-primary btn-sm">수정</button>
@@ -33,6 +37,53 @@
   </div>
 
   <script src="/js/article.js"></script>
+  <!-- TUI 에디터 JS CDN -->
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+  <!-- TUI 에디터 CSS CDN -->
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+  <script>
+    const editor = new toastui.Editor({
+      el: document.querySelector('#tui'),          // 에디터를 적용할 요소 (컨테이너)
+      height: '500px',                             // 에디터 영역의 높이 값 (OOOpx || auto)
+      initialEditType: 'wysiwyg',                 // 최초로 보여줄 에디터 타입 (markdown || wysiwyg)
+      initialValue: '',                            // 내용의 초기 값으로, 반드시 마크다운 문자열 형태여야 함
+      previewStyle: 'vertical',                    // 마크다운 프리뷰 스타일 (tab || vertical)
+      placeholder: '내용을 입력해 주세요.',
+      /* start of hooks */
+      hooks: {
+        async addImageBlobHook(blob, callback) { // 이미지 업로드 로직 커스텀
+          try {
+            /*
+             * 1. 에디터에 업로드한 이미지를 FormData 객체에 저장
+             *    (이때, 컨트롤러 uploadEditorImage 메서드의 파라미터인 'image'와 formData에 append 하는 key('image')값은 동일해야 함)
+             */
+            const formData = new FormData();
+            formData.append('image', blob);
+
+            // 2. FileApiController - uploadEditorImage 메서드 호출
+            const response = await fetch('/tui-editor/image-upload', {
+              method : 'POST',
+              body : formData,
+            });
+
+            // 3. 컨트롤러에서 전달받은 디스크에 저장된 파일명
+            const filename = await response.text();
+            console.log('서버에 저장된 파일명 : ', filename);
+
+            // 4. addImageBlobHook의 callback 함수를 통해, 디스크에 저장된 이미지를 에디터에 렌더링
+            const imageUrl = `/tui-editor/image-print?filename=${filename}`;
+            callback(imageUrl, 'image alt attribute');
+
+          } catch (error) {
+            console.error('업로드 실패 : ', error);
+          }
+        }
+      }
+      /* end of hooks */
+    });
+
+    editor.setHTML(document.getElementById('article-content').value);
+  </script>
 
 </body>
 </html>

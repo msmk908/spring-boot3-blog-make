@@ -29,7 +29,7 @@ if(modifyButton){
 
         body = JSON.stringify({
             title: document.getElementById("title").value,
-            content: document.getElementById("content").value,
+            content: editor.getHTML(),
         });
 
         function success(){
@@ -54,7 +54,7 @@ if(createButton){
     createButton.addEventListener("click", (event) => {
         body = JSON.stringify({
             title: document.getElementById("title").value,
-            content: document.getElementById("content").value,
+            content: editor.getHTML(),
         });
         function success(){
             alert("등록 완료되었습니다.");
